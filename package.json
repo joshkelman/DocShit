@@ -27,7 +27,7 @@
       "**/node_modules/pdfjs-dist/**"
     ],
     "mac": {
-      "identity": null,
+      "identity": "-",
       "category": "public.app-category.productivity",
       "target": ["dmg", "zip"]
     },

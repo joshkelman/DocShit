@@ -26,7 +26,13 @@ The Mac app is on the [releases page](https://github.com/joshkelman/DocShit/rele
 
 1. Download the disk image that matches the Mac and open it.
 2. Drag DocShit to Applications.
-3. The first time, Control-click DocShit in Applications and choose Open, then Open. macOS asks because this copy is not signed with an Apple certificate.
+3. Open DocShit from Applications.
+
+If macOS says the app is damaged or corrupted, that download was the older unsigned copy. Delete it, download the disk image again, and drag the new DocShit to Applications. For a copy already in Applications, this clears the block:
+
+```bash
+xattr -cr /Applications/DocShit.app
+```
 
 A Windows installer is not in that download.
 
