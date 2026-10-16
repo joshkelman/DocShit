@@ -19,10 +19,11 @@ A GIF keeps the first frame.
 
 ## Download
 
-The Mac app is on the [releases page](https://github.com/joshkelman/DocShit/releases).
+Mac and Windows downloads are on the [releases page](https://github.com/joshkelman/DocShit/releases).
 
 - Apple silicon (M1 or newer): `DocShit-0.1.0-arm64.dmg`
 - Intel Mac: `DocShit-0.1.0.dmg`
+- Windows: `DocShit.Setup.0.1.0.exe`
 
 1. Download the disk image that matches the Mac and open it.
 2. Drag DocShit to Applications.
@@ -34,7 +35,7 @@ If macOS says the app is damaged or corrupted, that download was the older unsig
 xattr -cr /Applications/DocShit.app
 ```
 
-A Windows installer is not in that download.
+On Windows, run `DocShit.Setup.0.1.0.exe`. If Windows says it protected your PC, choose More info, then Run anyway. This copy is not signed with a Windows certificate. The installer is for 64-bit Windows.
 
 ## Install from source
 
