@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DocShit render</title>
+  </head>
+  <body>
+    <script>
+      const path = require("path")
+      const { pathToFileURL } = require("url")
+      function outsideArchive(filePath) {
+        const marker = `${path.sep}app.asar${path.sep}`
+        return filePath.includes(marker) ? filePath.replace(marker, `${path.sep}app.asar.unpacked${path.sep}`) : filePath
+      }
+      const pdfPath = outsideArchive(path.join(__dirname, "../node_modules/pdfjs-dist/build/pdf.mjs"))
+      const workerPath = outsideArchive(path.join(__dirname, "../node_modules/pdfjs-dist/build/pdf.worker.mjs"))
+
+      async function loadPdf(filePath) {
+        const pdfjs = await import(pathToFileURL(pdfPath).href)
+        pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).href
+        const data = new Uint8Array(require("fs").readFileSync(filePath))
+        return pdfjs.getDocument({ data }).promise
+      }
+
+      window.docshiftPdfText = async (filePath) => {
+        const doc = await loadPdf(filePath)
+        const pages = []
+        for (let index = 1; index <= doc.numPages; index += 1) {
+          const page = await doc.getPage(index)
+          const content = await page.getTextContent()
+          pages.push(content.items.map((item) => item.str || "").join(" "))
+        }
+        return pages.join("\n\n")
+      }
+
+      window.docshiftPdfPages = async (filePath, format) => {
+        const doc = await loadPdf(filePath)
+        const total = Math.min(doc.numPages, 40)
+        const pages = []
+        const mime = format === "jpg" ? "image/jpeg" : "image/png"
+        for (let index = 1; index <= total; index += 1) {
+          const page = await doc.getPage(index)
+          const viewport = page.getViewport({ scale: 2 })
+          const canvas = document.createElement("canvas")
+          canvas.width = Math.ceil(viewport.width)
+          canvas.height = Math.ceil(viewport.height)
+          const context = canvas.getContext("2d")
+          if (!context) throw new Error("Could not draw that page.")
+          if (format === "jpg") {
+            context.fillStyle = "#ffffff"
+            context.fillRect(0, 0, canvas.width, canvas.height)
+          }
+          await page.render({ canvasContext: context, viewport }).promise
+          pages.push(canvas.toDataURL(mime, 0.92).split(",")[1])
+        }
+        return { pages, truncated: doc.numPages > total, total: doc.numPages }
+      }
+
+      window.docshiftTranscode = async (filePath, target) => {
+        const bytes = require("fs").readFileSync(filePath)
+        const blob = new Blob([bytes], { type: imageMime(filePath) })
+        const url = URL.createObjectURL(blob)
+        try {
+          const image = await loadImage(url)
+          const width = image.naturalWidth || image.width
+          const height = image.naturalHeight || image.height
+          if (!width || !height) throw new Error("Could not read that image.")
+          const canvas = document.createElement("canvas")
+          canvas.width = width
+          canvas.height = height
+          const context = canvas.getContext("2d")
+          if (!context) throw new Error("Could not draw that image.")
+          if (target === "jpg") {
+            context.fillStyle = "#ffffff"
+            context.fillRect(0, 0, canvas.width, canvas.height)
+          }
+          context.drawImage(image, 0, 0)
+          const mime = target === "jpg" ? "image/jpeg" : target === "webp" ? "image/webp" : "image/png"
+          return canvas.toDataURL(mime, 0.92).split(",")[1]
+        } finally {
+          URL.revokeObjectURL(url)
+        }
+      }
+
+      function imageMime(filePath) {
+        const ext = String(filePath).split(".").pop().toLowerCase()
+        if (ext === "svg") return "image/svg+xml"
+        if (ext === "gif") return "image/gif"
+        if (ext === "bmp") return "image/bmp"
+        if (ext === "ico") return "image/x-icon"
+        if (ext === "png") return "image/png"
+        if (ext === "webp") return "image/webp"
+        if (ext === "jpg" || ext === "jpeg") return "image/jpeg"
+        return ""
+      }
+
+      function loadImage(url) {
+        return new Promise((resolve, reject) => {
+          const image = new Image()
+          image.onload = () => resolve(image)
+          image.onerror = () => reject(new Error("Could not read that image."))
+          image.src = url
+        })
+      }
+    </script>
+  </body>
+</html>

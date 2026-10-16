@@ -1,0 +1,57 @@
+{
+  "name": "docshift",
+  "private": true,
+  "version": "0.1.0",
+  "description": "DocShit converts documents on this computer. Mac and Windows.",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "npm run build && electron .",
+    "test": "node scripts/test.mjs",
+    "dist": "npm run build && electron-builder",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:win": "npm run build && electron-builder --win"
+  },
+  "build": {
+    "appId": "com.docshift.app",
+    "productName": "DocShit",
+    "icon": "assets/icon.png",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "**/node_modules/pdfjs-dist/**"
+    ],
+    "mac": {
+      "identity": null,
+      "category": "public.app-category.productivity",
+      "target": ["dmg", "zip"]
+    },
+    "win": {
+      "target": ["nsis"]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^26.0.0",
+    "esbuild": "^0.25.10",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "html-to-docx": "^1.8.0",
+    "mammoth": "^1.10.0",
+    "marked": "^15.0.12",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^4.10.38",
+    "turndown": "^7.2.0",
+    "xlsx": "^0.18.5"
+  }
+}
