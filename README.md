@@ -27,13 +27,14 @@ Mac and Windows downloads are on the [releases page](https://github.com/joshkelm
 
 1. Download the disk image that matches the Mac and open it.
 2. Drag DocShit to Applications.
-3. Open DocShit from Applications.
-
-If macOS says the app is damaged or corrupted, that download was the older unsigned copy. Delete it, download the disk image again, and drag the new DocShit to Applications. For a copy already in Applications, this clears the block:
+3. macOS will say Apple could not verify DocShit, and it will not open. Open Terminal and run:
 
 ```bash
 xattr -cr /Applications/DocShit.app
+open /Applications/DocShit.app
 ```
+
+That block is there because this copy is not notarized with Apple.
 
 On Windows, run `DocShit.Setup.0.1.0.exe`. If Windows says it protected your PC, choose More info, then Run anyway. This copy is not signed with a Windows certificate. The installer is for 64-bit Windows.
 
